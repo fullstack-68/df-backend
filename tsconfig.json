@@ -6,9 +6,7 @@
   "compilerOptions": {
     "outDir": "./dist",
     "baseUrl": "./",
-    "paths": {
-      "@db/*": ["./db/*"]
-    }
+    "paths": {}
   },
-  "include": ["./*", "./src/**/*", "./db/**/*"]
+  "include": ["./*", "./src/**/*"]
 }

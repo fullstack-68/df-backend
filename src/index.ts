@@ -4,14 +4,16 @@ import express from "express";
 import cors from "cors";
 import dayjs from "dayjs";
 import { PORT } from "./env.js";
+import http from "http";
+import { Server as SocketIOServer } from "socket.io";
 
 const debug = Debug("myapp");
 const app = express();
 app.use(cors({ origin: false }));
 
-// * Endpoints
+// Endpoints
 app.get("/", async (req, res, next) => {
-  res.send("Use /clock endpoint");
+  res.send("OK");
 });
 
 app.get("/clock", async (req, res, next) => {
@@ -20,6 +22,7 @@ app.get("/clock", async (req, res, next) => {
   res.json({ data: dtStr });
 });
 
+// Server-Send Event Endpoint
 app.get("/sse/clock", async (req, res, next) => {
   const headers = {
     "Content-Type": "text/event-stream",
@@ -41,7 +44,20 @@ app.get("/sse/clock", async (req, res, next) => {
   });
 });
 
+// SocketIO Integration
+const server = http.createServer(app);
+const io = new SocketIOServer(server);
+
+io.on("connection", (socket) => {
+  console.log("a user connected");
+  setInterval(function () {
+    // const dtStr = dayjs().format("DD/MM/YYYY HH:mm:ss");
+    const dtStr = dayjs().format("HH:mm:ss");
+    io.sockets.emit("clock", { clock: dtStr });
+  }, 1000);
+});
+
 // * Running app
-app.listen(PORT, async () => {
+server.listen(PORT, async () => {
   debug(`Listening on port ${PORT}: http://localhost:${PORT}`);
 });
